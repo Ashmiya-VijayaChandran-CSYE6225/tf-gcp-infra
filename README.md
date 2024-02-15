@@ -1,5 +1,5 @@
 # tf-gcp-infra
 
-Enabled APIs:
+Enabled APIs for GCP:
 
 - Compute Engine
