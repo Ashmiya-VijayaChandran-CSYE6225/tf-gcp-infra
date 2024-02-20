@@ -8,7 +8,7 @@ resource "google_compute_network" "vpc_network" {
   count                           = var.count_of_vpcs
   name                            = count.index < 1 ? var.vpc_network_name : "${var.vpc_network_name}-${count.index}"
   auto_create_subnetworks         = false
-  routing_mode                    = var.routing_mode
+  routing_mode                    = var.routing_mod
   delete_default_routes_on_create = true
 }
 
