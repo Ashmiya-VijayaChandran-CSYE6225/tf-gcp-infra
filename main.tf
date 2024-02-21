@@ -33,3 +33,8 @@ resource "google_compute_route" "compute_route" {
   dest_range       = var.dest_range
   next_hop_gateway = var.next_hop_gateway
 }
+
+data "google_compute_image" "centos-custom-image-google" {
+  family  = "custom-image"
+  project = var.project
+}
