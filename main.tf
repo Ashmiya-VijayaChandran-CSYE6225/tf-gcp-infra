@@ -53,3 +53,13 @@ resource "google_compute_instance" "vm_instance" {
     subnetwork = "webapp"
   }
 }
+
+resource "google_compute_firewall" "allow_http" {
+  name    = "allow-http"
+  network = "vpc-network"
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+}
