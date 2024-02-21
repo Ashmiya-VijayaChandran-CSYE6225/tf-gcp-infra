@@ -38,3 +38,18 @@ data "google_compute_image" "centos-custom-image-google" {
   family  = "custom-image"
   project = var.project
 }
+
+resource "google_compute_instance" "vm_instance" {
+  name         = "custom-vm-instance"
+  machine_type = "n1-standard-1"
+  zone         = var.zone
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.centos-custom-image-google.self_link
+    }
+  }
+  network_interface {
+    network    = "vpc-network"
+    subnetwork = "webapp"
+  }
+}
