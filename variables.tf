@@ -125,20 +125,20 @@ variable "google_compute_firewall_allow_description" {
 
 variable "source_tags" {
   description = "Source Tags"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "target_tags" {
   description = "Target Tags"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "source_ranges" {
   description = "Source Ranges"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "ports" {
   description = "Ports"
-  type = list(string)
+  type        = list(string)
 }
