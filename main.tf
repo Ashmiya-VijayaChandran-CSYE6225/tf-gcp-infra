@@ -31,7 +31,7 @@ resource "google_compute_route" "compute_route" {
 }
 
 data "google_compute_image" "centos-custom-image-google" {
-  name = var.google_compute_image
+  name    = var.google_compute_image
   project = var.project
 }
 
@@ -85,7 +85,7 @@ resource "google_compute_firewall" "google_compute_firewall_allow" {
     protocol = "tcp"
     ports    = var.ports
   }
-  priority = 100
+  priority      = 100
   source_tags   = var.source_tags
   target_tags   = var.target_tags
   source_ranges = var.source_ranges
