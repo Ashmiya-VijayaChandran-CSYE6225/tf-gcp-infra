@@ -142,3 +142,124 @@ variable "ports" {
   description = "Ports"
   type        = list(string)
 }
+
+variable "global_address_name" {
+  description = "Global Address Name"
+  type        = string
+}
+
+variable "address_type" {
+  description = "Address Type"
+  type        = string
+}
+
+variable "address_purpose" {
+  description = "Address Purpose"
+  type        = string
+}
+
+variable "prefix_length" {
+  description = "Prefix Length"
+  type        = number
+}
+
+variable "networking_connection_service" {
+  description = "Networking Connection Service"
+  type        = string
+}
+
+variable "db_version" {
+  description = "DB Version"
+  type = string
+}
+
+variable "deletion_protection" {
+  description = "Deletion Protection"
+  type = bool
+  default = false
+}
+
+variable "settings_tier" {
+  description = "Settings Tier"
+  type = string
+}
+
+variable "availability_type" {
+  description = "Availability Type"
+  type = string
+}
+
+variable "disk_type" {
+  description = "Disk Type"
+  type = string
+}
+
+variable "disk_size" {
+  description = "Disk Size"
+  type = number
+}
+
+variable "backup_enabled" {
+  description = "Backup Enabled"
+  type = bool
+}
+
+variable "binary_log_enabled" {
+  description = "Binary Log Enabled"
+  type = bool
+}
+
+variable "ipv4_enabled" {
+  description = "IPV4 Enabled"
+  type = bool
+}
+
+variable "enable_private_path_for_google_cloud_services" {
+  description = "IPV4 Enabled"
+  type = bool
+}
+
+variable "sql_db_name" {
+  description = "SQL DB Name"
+  type = string
+}
+
+variable "sql_user" {
+  description = "SQL User"
+  type = string
+}
+
+variable "password_length" {
+  description = "Password Length"
+  type = number
+}
+
+variable "password_min_lower" {
+  description = "Password Length"
+  type = number
+}
+
+variable "password_min_upper" {
+  description = "Password Length"
+  type = number
+}
+
+variable "password_min_numeric" {
+  description = "Password Length"
+  type = number
+}
+
+variable "password_min_special" {
+  description = "Password Length"
+  type = number
+}
+
+variable "override_special" {
+  description = "Override Special"
+  type = string
+}
+
+variable "password_special" {
+  description = "Password Special"
+  type = bool
+}
