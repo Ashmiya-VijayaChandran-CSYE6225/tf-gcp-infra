@@ -61,9 +61,9 @@ resource "google_compute_instance" "vm_instance" {
     scopes = var.service_account_scopes
   }
   metadata_startup_script = <<-EOF
-    echo "DATABASE_URL=jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/webapp?createDatabaseIfNotExist=true" > .env
-    echo "DATABASE_USERNAME=webapp" >> .env
-    echo "DATABASE_PASSWORD=${random_password.password.result}" >> .env
+    echo "DATABASE_URL=jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/${var.database_name}?createDatabaseIfNotExist=true" > .env
+    echo "DATABASE_USERNAME=${google_sql_user.users.name}" >> .env
+    echo "DATABASE_PASSWORD=${google_sql_user.users.password}" >> .env
     sudo mv .env /opt/
     sudo chown csye6225:csye6225 /opt/.env
     sudo setenforce 0
@@ -163,7 +163,8 @@ resource "random_password" "password" {
 
 
 resource "google_sql_user" "users" {
-  name     = var.sql_user
-  instance = google_sql_database_instance.mysql_db_instance.name
-  password = random_password.password.result
+  name       = var.sql_user
+  instance   = google_sql_database_instance.mysql_db_instance.name
+  password   = random_password.password.result
+  depends_on = [google_sql_database_instance.mysql_db_instance]
 }
