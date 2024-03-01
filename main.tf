@@ -61,7 +61,7 @@ resource "google_compute_instance" "vm_instance" {
     scopes = var.service_account_scopes
   }
   metadata_startup_script = <<-EOF
-    echo "DATABASE_URL=jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/cloud?createDatabaseIfNotExist=true" > .env
+    echo "DATABASE_URL=jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/webapp?createDatabaseIfNotExist=true" > .env
     echo "DATABASE_USERNAME=webapp" >> .env
     echo "DATABASE_PASSWORD=${random_password.password.result}" >> .env
     sudo mv .env /opt/
@@ -120,14 +120,14 @@ resource "random_id" "db_name_suffix" {
   byte_length = 4
 }
 resource "google_sql_database_instance" "mysql_db_instance" {
-  name                = "main-instance-${random_id.db_name_suffix.hex}"
+  name                = "mysql-instance-${random_id.db_name_suffix.hex}"
   database_version    = var.db_version
   deletion_protection = var.deletion_protection
   depends_on          = [google_service_networking_connection.networking_connection]
   settings {
     tier              = var.settings_tier
     availability_type = var.availability_type
-    disk_type         = var.disk_size
+    disk_type         = var.disk_type
     disk_size         = var.disk_size
     backup_configuration {
       enabled            = var.backup_enabled
@@ -137,6 +137,12 @@ resource "google_sql_database_instance" "mysql_db_instance" {
       ipv4_enabled                                  = var.ipv4_enabled
       private_network                               = google_compute_network.vpc_network.self_link
       enable_private_path_for_google_cloud_services = var.enable_private_path_for_google_cloud_services
+      # require_ssl = true
+      # authorized_networks {
+      #   name  = google_compute_instance.vm_instance.name
+      #   value = google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip
+      # }
+      # = [google_compute_subnetwork.app_network.self_link]
     }
   }
 }
