@@ -267,3 +267,8 @@ variable "password_special" {
   description = "Password Special"
   type        = bool
 }
+
+variable "database_name" {
+  description = "Database Name"
+  type        = string
+}
