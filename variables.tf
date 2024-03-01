@@ -187,19 +187,19 @@ variable "settings_tier" {
 variable "availability_type" {
   description = "Availability Type"
   type        = string
-  default = "REGIONAL"
+  default     = "REGIONAL"
 }
 
 variable "disk_type" {
   description = "Disk Type"
   type        = string
-  default = "PD_SSD"
+  default     = "PD_SSD"
 }
 
 variable "disk_size" {
   description = "Disk Size"
   type        = number
-  default = 100
+  default     = 100
 }
 
 variable "backup_enabled" {
@@ -215,7 +215,7 @@ variable "binary_log_enabled" {
 variable "ipv4_enabled" {
   description = "IPV4 Enabled"
   type        = bool
-  default = false
+  default     = false
 }
 
 variable "enable_private_path_for_google_cloud_services" {
