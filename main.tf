@@ -170,22 +170,22 @@ resource "google_sql_user" "users" {
 }
 
 resource "google_dns_record_set" "dns_record_set" {
-  name = "ashmiyavs.me."
-  type = "A"
-  ttl  = 90
+  name = var.dns_record_name
+  type = var.dns_record_type
+  ttl  = var.dns_record_ttl
 
-  managed_zone = "ashmiyavs"
+  managed_zone = var.dns_record_managed_zone
   rrdatas      = [google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip]
 }
 resource "google_service_account" "service_account" {
-  account_id   = "webapp-service-account"
-  display_name = "Webapp Service Account"
+  account_id   = var.service_account_id
+  display_name = var.service_account_display_name
 }
 
 
 resource "google_project_iam_binding" "iam_binding_logging_admin" {
   project = var.project
-  role    = "roles/logging.admin"
+  role    = var.role_logging_admin
 
   members = [
     "serviceAccount:${google_service_account.service_account.email}"
@@ -193,7 +193,7 @@ resource "google_project_iam_binding" "iam_binding_logging_admin" {
 }
 resource "google_project_iam_binding" "iam_binding_monitoring_metric_writer" {
   project = var.project
-  role    = "roles/monitoring.metricWriter"
+  role    = var.role_monitoring_metric_writer
   members = [
     "serviceAccount:${google_service_account.service_account.email}"
   ]
