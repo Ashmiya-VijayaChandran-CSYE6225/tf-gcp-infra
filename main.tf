@@ -57,7 +57,7 @@ resource "google_compute_instance" "vm_instance" {
     }
   }
   service_account {
-    email  = var.service_account_email
+    email  = google_service_account.service_account.email
     scopes = var.service_account_scopes
   }
   metadata_startup_script = <<-EOF
@@ -167,4 +167,34 @@ resource "google_sql_user" "users" {
   instance   = google_sql_database_instance.mysql_db_instance.name
   password   = random_password.password.result
   depends_on = [google_sql_database_instance.mysql_db_instance]
+}
+
+resource "google_dns_record_set" "dns_record_set" {
+  name = "ashmiyavs.me."
+  type = "A"
+  ttl  = 90
+
+  managed_zone = "ashmiyavs"
+  rrdatas      = [google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip]
+}
+resource "google_service_account" "service_account" {
+  account_id   = "webapp-service-account"
+  display_name = "Webapp Service Account"
+}
+
+
+resource "google_project_iam_binding" "iam_binding_logging_admin" {
+  project = var.project
+  role    = "roles/logging.admin"
+
+  members = [
+    "serviceAccount:${google_service_account.service_account.email}"
+  ]
+}
+resource "google_project_iam_binding" "iam_binding_monitoring_metric_writer" {
+  project = var.project
+  role    = "roles/monitoring.metricWriter"
+  members = [
+    "serviceAccount:${google_service_account.service_account.email}"
+  ]
 }
