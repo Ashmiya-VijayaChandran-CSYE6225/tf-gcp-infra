@@ -272,3 +272,43 @@ variable "database_name" {
   description = "Database Name"
   type        = string
 }
+
+variable "dns_record_name" {
+  description = "DNS Record Name"
+  type        = string
+}
+
+variable "dns_record_type" {
+  description = "DNS Record Type"
+  type        = string
+}
+
+variable "dns_record_ttl" {
+  description = "DNS Record TTL"
+  type        = number
+}
+
+variable "dns_record_managed_zone" {
+  description = "DNS Managed Zone"
+  type        = string
+}
+
+variable "service_account_id" {
+  description = "Service Account ID"
+  type        = string
+}
+
+variable "service_account_display_name" {
+  description = "Service Account Display Name"
+  type        = string
+}
+
+variable "role_logging_admin" {
+  description = "Logging Admin Role"
+  type        = string
+}
+
+variable "role_monitoring_metric_writer" {
+  description = "Monitoring Metric Writer"
+  type        = string
+}
