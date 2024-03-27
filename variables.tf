@@ -312,3 +312,93 @@ variable "role_monitoring_metric_writer" {
   description = "Monitoring Metric Writer"
   type        = string
 }
+
+variable "role_pubsub_publisher" {
+  description = "Pub/Sub Publisher"
+  type        = string
+}
+
+variable "pubsub_topic" {
+  description = "Pub/Sub Topic"
+  type        = string
+}
+
+variable "message_retention_duration" {
+  description = "Message Retention Duration"
+  type        = string
+}
+
+variable "bucket_object_name" {
+  description = "Bucket Object Name"
+  type        = string
+}
+
+variable "bucket_object_source" {
+  description = "Bucket Object Source"
+  type        = string
+}
+
+variable "verify_cloud_function_name" {
+  description = "Verify Cloud Function Name"
+  type        = string
+}
+
+variable "verify_cloud_function_description" {
+  description = "Verify Cloud Function Description"
+  type        = string
+}
+
+variable "verify_cloud_function_build_config" {
+  description = "Verify Cloud Function Build Config"
+  type        = string
+}
+
+variable "verify_cloud_function_entry_point" {
+  description = "Verify Cloud Function Entry Point"
+  type        = string
+}
+
+variable "event_type" {
+  description = "Event Type"
+  type        = string
+}
+
+variable "retry_policy" {
+  description = "Retry Policy"
+  type        = string
+}
+
+variable "vpc_connector_egress_settings" {
+  description = "Egress Settings"
+  type        = string
+}
+
+variable "subscription" {
+  description = "Subscription"
+  type        = string
+}
+
+variable "subcription_message_retention_duration" {
+  description = "Subscription Message Retention Duration"
+  type        = string
+}
+
+variable "ack_deadline_seconds" {
+  description = "ack_deadline_seconds"
+  type        = number
+}
+
+variable "retain_acked_messages" {
+  description = "retain_acked_messages"
+  type        = bool
+}
+
+variable "vpc_access_connector" {
+  description = "vpc_access_connector"
+  type        = string
+}
+
+variable "vpc_access_connector_ip_cidr_range" {
+  description = "vpc_access_connector_ip_cidr_range"
+  type        = string
+}
