@@ -182,19 +182,89 @@ resource "google_service_account" "service_account" {
   display_name = var.service_account_display_name
 }
 
-
-resource "google_project_iam_binding" "iam_binding_logging_admin" {
+resource "google_project_iam_binding" "service_account_roles" {
   project = var.project
-  role    = var.role_logging_admin
+  for_each = toset([
+    var.role_logging_admin,
+    var.role_monitoring_metric_writer,
+    var.role_pubsub_publisher
+  ])
+  role = each.key
 
   members = [
     "serviceAccount:${google_service_account.service_account.email}"
   ]
 }
-resource "google_project_iam_binding" "iam_binding_monitoring_metric_writer" {
-  project = var.project
-  role    = var.role_monitoring_metric_writer
-  members = [
-    "serviceAccount:${google_service_account.service_account.email}"
-  ]
+
+resource "google_pubsub_topic" "verify_email" {
+  name                       = var.pubsub_topic
+  message_retention_duration = var.message_retention_duration
+}
+
+resource "random_id" "bucket_random_id" {
+  byte_length = 8
+}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "${random_id.bucket_random_id.hex}-gcf-source"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+
+resource "google_storage_bucket_object" "verify_email" {
+  name   = var.bucket_object_name
+  bucket = google_storage_bucket.bucket.name
+  source = var.bucket_object_source
+}
+
+resource "google_vpc_access_connector" "vpc_access_connector" {
+  name          = var.vpc_access_connector
+  ip_cidr_range = var.vpc_access_connector_ip_cidr_range
+  network       = google_compute_network.vpc_network.self_link
+}
+
+resource "google_pubsub_subscription" "subcription" {
+  name                       = var.subscription
+  topic                      = google_pubsub_topic.verify_email.id
+  message_retention_duration = var.subcription_message_retention_duration
+  retain_acked_messages      = var.retain_acked_messages
+  ack_deadline_seconds       = var.ack_deadline_seconds
+}
+
+resource "google_cloudfunctions2_function" "verify_cloud_function" {
+  name        = var.verify_cloud_function_name
+  description = var.verify_cloud_function_description
+  location    = var.region
+
+  build_config {
+    runtime     = var.verify_cloud_function_build_config
+    entry_point = var.verify_cloud_function_entry_point
+
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.verify_email.name
+      }
+    }
+
+  }
+  service_config {
+    service_account_email         = google_service_account.service_account.email
+    vpc_connector                 = google_vpc_access_connector.vpc_access_connector.id
+    vpc_connector_egress_settings = var.vpc_connector_egress_settings
+    environment_variables = {
+      DATABASE_NAME     = var.sql_db_name
+      DATABASE_USERNAME = var.sql_user
+      DATABASE_PASSWORD = random_password.password.result
+      DATABASE_URL      = "jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/${var.database_name}"
+    }
+  }
+
+  event_trigger {
+    trigger_region = var.region
+    event_type     = var.event_type
+    pubsub_topic   = google_pubsub_topic.verify_email.id
+    retry_policy   = var.retry_policy
+  }
 }
