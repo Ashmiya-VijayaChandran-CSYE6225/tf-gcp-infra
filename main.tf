@@ -303,10 +303,10 @@ resource "google_compute_region_instance_template" "region_instance_template" {
 }
 
 resource "google_compute_health_check" "autohealing" {
-  name               = var.compute_health_check
-  check_interval_sec = var.check_interval_sec
-  timeout_sec        = var.timeout_sec
-  healthy_threshold = var.healthy_threshold
+  name                = var.compute_health_check
+  check_interval_sec  = var.check_interval_sec
+  timeout_sec         = var.timeout_sec
+  healthy_threshold   = var.healthy_threshold
   unhealthy_threshold = var.unhealthy_threshold
 
   http_health_check {
@@ -387,7 +387,7 @@ resource "google_compute_target_https_proxy" "loadbalancer_default" {
 }
 
 resource "google_compute_global_forwarding_rule" "default" {
-  ip_protocol = "TCP"
+  ip_protocol           = "TCP"
   name                  = var.global_forwarding_rule
   target                = google_compute_target_https_proxy.loadbalancer_default.id
   port_range            = var.global_forwarding_rule_port_range
@@ -395,7 +395,7 @@ resource "google_compute_global_forwarding_rule" "default" {
 }
 
 resource "google_compute_ssl_certificate" "nc_ssl_certificate" {
-  name = var.nc_ssl_certificate
+  name        = var.nc_ssl_certificate
   private_key = file(var.nc_ssl_certificate_private_key)
   certificate = file(var.nc_ssl_certificate_certificate)
 }
