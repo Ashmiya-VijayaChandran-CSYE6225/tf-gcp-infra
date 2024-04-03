@@ -36,41 +36,41 @@ data "google_compute_image" "centos-custom-image-google" {
   project = var.project
 }
 
-resource "google_compute_instance" "vm_instance" {
-  name         = var.vm_instance_name
-  machine_type = var.vm_machine_type
-  zone         = var.zone
-  tags         = var.google_compute_instance_tags
-  boot_disk {
-    device_name = var.vm_device_name
-    initialize_params {
-      image = data.google_compute_image.centos-custom-image-google.self_link
-      size  = var.initialize_params_size
-      type  = var.initialize_params_type
-    }
-  }
-  network_interface {
-    network    = google_compute_network.vpc_network.self_link
-    subnetwork = google_compute_subnetwork.app_network.self_link
-    access_config {
+# resource "google_compute_instance" "vm_instance" {
+#   name         = var.vm_instance_name
+#   machine_type = var.vm_machine_type
+#   zone         = var.zone
+#   tags         = var.google_compute_instance_tags
+#   boot_disk {
+#     device_name = var.vm_device_name
+#     initialize_params {
+#       image = data.google_compute_image.centos-custom-image-google.self_link
+#       size  = var.initialize_params_size
+#       type  = var.initialize_params_type
+#     }
+#   }
+#   network_interface {
+#     network    = google_compute_network.vpc_network.self_link
+#     subnetwork = google_compute_subnetwork.app_network.self_link
+#     access_config {
 
-    }
-  }
-  service_account {
-    email  = google_service_account.service_account.email
-    scopes = var.service_account_scopes
-  }
-  metadata_startup_script = <<-EOF
-    echo "DATABASE_URL=jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/${var.database_name}?createDatabaseIfNotExist=true" > .env
-    echo "DATABASE_USERNAME=${google_sql_user.users.name}" >> .env
-    echo "DATABASE_PASSWORD=${google_sql_user.users.password}" >> .env
-    sudo mv .env /opt/
-    sudo chown csye6225:csye6225 /opt/.env
-    sudo setenforce 0
-    sudo systemctl daemon-reload
-    sudo systemctl restart start-webapp.service
-  EOF
-}
+#     }
+#   }
+#   service_account {
+#     email  = google_service_account.service_account.email
+#     scopes = var.service_account_scopes
+#   }
+#   metadata_startup_script = <<-EOF
+#     echo "DATABASE_URL=jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/${var.database_name}?createDatabaseIfNotExist=true" > .env
+#     echo "DATABASE_USERNAME=${google_sql_user.users.name}" >> .env
+#     echo "DATABASE_PASSWORD=${google_sql_user.users.password}" >> .env
+#     sudo mv .env /opt/
+#     sudo chown csye6225:csye6225 /opt/.env
+#     sudo setenforce 0
+#     sudo systemctl daemon-reload
+#     sudo systemctl restart start-webapp.service
+#   EOF
+# }
 
 resource "google_compute_firewall" "google_compute_firewall_deny" {
   name        = var.google_compute_firewall_deny
@@ -169,14 +169,6 @@ resource "google_sql_user" "users" {
   depends_on = [google_sql_database_instance.mysql_db_instance]
 }
 
-resource "google_dns_record_set" "dns_record_set" {
-  name = var.dns_record_name
-  type = var.dns_record_type
-  ttl  = var.dns_record_ttl
-
-  managed_zone = var.dns_record_managed_zone
-  rrdatas      = [google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip]
-}
 resource "google_service_account" "service_account" {
   account_id   = var.service_account_id
   display_name = var.service_account_display_name
@@ -267,4 +259,153 @@ resource "google_cloudfunctions2_function" "verify_cloud_function" {
     pubsub_topic   = google_pubsub_topic.verify_email.id
     retry_policy   = var.retry_policy
   }
+}
+
+resource "google_compute_region_instance_template" "region_instance_template" {
+  name = var.region_instance_template
+
+  tags = var.google_compute_instance_tags
+
+  machine_type = var.vm_machine_type
+  depends_on   = [google_service_account.service_account, google_project_iam_binding.service_account_roles]
+  // Create a new boot disk from an image
+  disk {
+    source_image = var.google_compute_image
+    auto_delete  = true
+    boot         = true
+    disk_size_gb = var.initialize_params_size
+    disk_type    = var.initialize_params_type
+  }
+
+  network_interface {
+    network    = google_compute_network.vpc_network.self_link
+    subnetwork = google_compute_subnetwork.app_network.self_link
+    access_config {
+
+    }
+  }
+
+  metadata_startup_script = <<-EOF
+    echo "DATABASE_URL=jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/${var.database_name}?createDatabaseIfNotExist=true" > .env
+    echo "DATABASE_USERNAME=${google_sql_user.users.name}" >> .env
+    echo "DATABASE_PASSWORD=${google_sql_user.users.password}" >> .env
+    sudo mv .env /opt/
+    sudo chown csye6225:csye6225 /opt/.env
+    sudo setenforce 0
+    sudo systemctl daemon-reload
+    sudo systemctl restart start-webapp.service
+  EOF
+
+  service_account {
+    email  = google_service_account.service_account.email
+    scopes = var.service_account_scopes
+  }
+}
+
+resource "google_compute_health_check" "autohealing" {
+  name               = var.compute_health_check
+  check_interval_sec = var.check_interval_sec
+  timeout_sec        = var.timeout_sec
+  healthy_threshold = var.healthy_threshold
+  unhealthy_threshold = var.unhealthy_threshold
+
+  http_health_check {
+    request_path = var.request_path
+    port         = var.request_path_port
+  }
+}
+
+resource "google_compute_region_autoscaler" "region_autoscaler" {
+  name   = var.region_autoscaler
+  region = var.region
+  target = google_compute_region_instance_group_manager.webapp_server.id
+
+  autoscaling_policy {
+    max_replicas    = var.max_replicas
+    min_replicas    = var.min_replicas
+    cooldown_period = var.cooldown_period
+
+    cpu_utilization {
+      target = var.cpu_utilization
+    }
+  }
+}
+resource "google_compute_region_instance_group_manager" "webapp_server" {
+  name = var.instance_group_manager
+
+  base_instance_name = var.vm_instance_name
+  region             = var.region
+
+  version {
+    instance_template = google_compute_region_instance_template.region_instance_template.self_link
+  }
+  named_port {
+    name = var.named_port
+    port = var.named_port_number
+  }
+
+  auto_healing_policies {
+    health_check      = google_compute_health_check.autohealing.id
+    initial_delay_sec = var.initial_delay_sec
+  }
+}
+
+
+resource "google_compute_managed_ssl_certificate" "loadbalancer_certificate" {
+  name = var.ssl_certificate
+
+  managed {
+    domains = var.ssl_certificate_domains
+  }
+}
+resource "google_compute_backend_service" "default" {
+  name                  = var.backend_service
+  health_checks         = [google_compute_health_check.autohealing.id]
+  load_balancing_scheme = var.load_balancing_scheme
+  port_name             = var.load_balancing_scheme_port_name
+  protocol              = var.load_balancing_scheme_protocol
+  log_config {
+    enable = true
+  }
+  backend {
+    group = google_compute_region_instance_group_manager.webapp_server.instance_group
+  }
+}
+resource "google_compute_url_map" "default" {
+  name            = var.url_map
+  default_service = google_compute_backend_service.default.id
+}
+resource "google_compute_target_https_proxy" "loadbalancer_default" {
+  name    = var.https_proxy
+  url_map = google_compute_url_map.default.id
+  ssl_certificates = [
+    google_compute_ssl_certificate.nc_ssl_certificate.id
+  ]
+  depends_on = [
+    google_compute_ssl_certificate.nc_ssl_certificate
+  ]
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  ip_protocol = "TCP"
+  name                  = var.global_forwarding_rule
+  target                = google_compute_target_https_proxy.loadbalancer_default.id
+  port_range            = var.global_forwarding_rule_port_range
+  load_balancing_scheme = var.global_forwarding_rule_load_balancing_scheme
+}
+
+resource "google_compute_ssl_certificate" "nc_ssl_certificate" {
+  name = var.nc_ssl_certificate
+  private_key = file(var.nc_ssl_certificate_private_key)
+  certificate = file(var.nc_ssl_certificate_certificate)
+}
+
+resource "google_dns_record_set" "dns_record_set" {
+  name = var.dns_record_name
+  type = var.dns_record_type
+  ttl  = var.dns_record_ttl
+
+  managed_zone = var.dns_record_managed_zone
+  rrdatas      = [google_compute_global_forwarding_rule.default.ip_address]
+  # rrdatas      = [google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip]
 }

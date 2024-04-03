@@ -402,3 +402,162 @@ variable "vpc_access_connector_ip_cidr_range" {
   description = "vpc_access_connector_ip_cidr_range"
   type        = string
 }
+
+variable "region_instance_template" {
+    description = "region_instance_template"
+  type        = string
+}
+
+variable "compute_health_check" {
+    description = "compute_health_check"
+  type        = string
+}
+
+variable "check_interval_sec" {
+    description = "check_interval_sec"
+  type        = number
+}
+
+variable "timeout_sec" {
+    description = "timeout_sec"
+  type        = number
+}
+
+variable "healthy_threshold" {
+    description = "healthy_threshold"
+  type        = number
+}
+
+variable "unhealthy_threshold" {
+    description = "unhealthy_threshold"
+  type        = number
+}
+
+variable "request_path" {
+    description = "request_path"
+  type        = string
+}
+
+variable "request_path_port" {
+    description = "request_path_port"
+  type        = string
+}
+
+variable "region_autoscaler" {
+      description = "region_autoscaler"
+  type        = string
+}
+
+variable "max_replicas" {
+    description = "max_replicas"
+  type        = number
+}
+
+variable "min_replicas" {
+    description = "min_replicas"
+  type        = number
+}
+
+variable "cooldown_period" {
+    description = "cooldown_period"
+  type        = number
+}
+
+variable "cpu_utilization" {
+    description = "cpu_utilization"
+  type        = number
+}
+
+variable "instance_group_manager" {
+      description = "instance_group_manager"
+  type        = string
+}
+
+variable "named_port" {
+      description = "named_port"
+  type        = string
+}
+
+variable "named_port_number" {
+      description = "named_port_number"
+  type        = number
+}
+
+variable "initial_delay_sec" {
+      description = "initial_delay_sec"
+  type        = number
+}
+
+variable "ssl_certificate" {
+      description = "ssl_certificate"
+  type        = string
+}
+
+variable "ssl_certificate_domains" {
+      description = "ssl_certificate"
+  type        = list(string)
+}
+
+variable "backend_service" {
+      description = "backend_service"
+  type        = string
+}
+
+variable "load_balancing_scheme" {
+      description = "load_balancing_scheme"
+  type        = string
+}
+
+variable "load_balancing_scheme_port_name" {
+      description = "backend_service"
+  type        = string
+}
+
+variable "load_balancing_scheme_protocol" {
+      description = "backend_service"
+  type        = string
+}
+
+variable "url_map" {
+      description = "url_map"
+  type        = string
+}
+
+variable "https_proxy" {
+      description = "https_proxy"
+  type        = string
+}
+
+variable "global_forwarding_rule" {
+      description = "global_forwarding_rule"
+  type        = string
+}
+
+variable "global_forwarding_rule_port_range" {
+      description = "global_forwarding_rule"
+  type        = string
+}
+
+variable "global_forwarding_rule_load_balancing_scheme" {
+      description = "global_forwarding_rule"
+  type        = string
+}
+
+variable "nc_ssl_certificate" {
+    description = "nc_ssl_certificate"
+  type        = string
+}
+
+variable "nc_ssl_certificate_private_key" {
+    description = "nc_ssl_certificate"
+  type        = string
+}
+
+variable "nc_ssl_certificate_certificate" {
+    description = "nc_ssl_certificate"
+  type        = string
+}
+
+
+
+
