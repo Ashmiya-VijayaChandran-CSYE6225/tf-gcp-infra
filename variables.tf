@@ -303,6 +303,16 @@ variable "service_account_display_name" {
   type        = string
 }
 
+variable "service_account_pub_sub_id" {
+  description = "Service Account ID"
+  type        = string
+}
+
+variable "service_account_pub_sub_display_name" {
+  description = "Service Account Display Name"
+  type        = string
+}
+
 variable "role_logging_admin" {
   description = "Logging Admin Role"
   type        = string
@@ -558,6 +568,8 @@ variable "nc_ssl_certificate_certificate" {
   type        = string
 }
 
-
-
+variable "mailgun_api_key" {
+  description = "mailgun_api_key"
+  type        = string
+}
 
