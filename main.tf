@@ -274,7 +274,7 @@ resource "google_cloudfunctions2_function" "verify_cloud_function" {
       DATABASE_USERNAME = var.sql_user
       DATABASE_PASSWORD = random_password.password.result
       DATABASE_URL      = "jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/${var.database_name}"
-      MAILGUN_API_KEY = var.mailgun_api_key
+      MAILGUN_API_KEY   = var.mailgun_api_key
     }
   }
 
@@ -483,13 +483,13 @@ data "google_storage_project_service_account" "storage_project_service_account" 
 resource "google_project_service_identity" "sql_admin_project_service_identity" {
   provider = google-beta
   project  = var.project
-  service  = "sqladmin.googleapis.com"
+  service  = var.sql_admin_project_service_identity_service
 }
 
 resource "google_kms_crypto_key_iam_binding" "bucket_crypto_iam_binding" {
   provider      = google-beta
   crypto_key_id = google_kms_crypto_key.bucket_kms_crypto_key.id
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  role          = var.bucket_crypto_iam_binding_role
   members = [
     "serviceAccount:${data.google_storage_project_service_account.storage_project_service_account.email_address}"
   ]
@@ -498,62 +498,62 @@ resource "google_kms_crypto_key_iam_binding" "bucket_crypto_iam_binding" {
 resource "google_kms_crypto_key_iam_binding" "vm_crypto_iam_binding" {
   provider      = google-beta
   crypto_key_id = google_kms_crypto_key.vm_kms_crypto_key.id
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  role          = var.vm_crypto_iam_binding_role
   members = [
     "serviceAccount:${google_service_account.service_account.email}",
-    "serviceAccount:service-217948701680@compute-system.iam.gserviceaccount.com"
+    "serviceAccount:${var.vm_crypto_iam_binding_sa}"
   ]
 }
 
 resource "google_kms_crypto_key_iam_binding" "sql_crypto_iam_binding" {
   provider      = google-beta
   crypto_key_id = google_kms_crypto_key.mysql_kms_crypto_key.id
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  role          = var.sql_crypto_iam_binding_role
   members = [
     "serviceAccount:${google_project_service_identity.sql_admin_project_service_identity.email}"
   ]
 }
 
 resource "google_secret_manager_secret" "DATABASE_URL" {
-  secret_id = "DATABASE_URL"
+  secret_id = var.DATABASE_URL
   replication {
     auto {}
   }
 }
 resource "google_secret_manager_secret_version" "DATABASE_URL_VERSION" {
-  secret = google_secret_manager_secret.DATABASE_URL.id
+  secret      = google_secret_manager_secret.DATABASE_URL.id
   secret_data = "jdbc:mysql://${google_sql_database_instance.mysql_db_instance.private_ip_address}:3306/${var.database_name}?createDatabaseIfNotExist=true"
 }
 
 resource "google_secret_manager_secret" "DATABASE_USERNAME" {
-  secret_id = "DATABASE_USERNAME"
+  secret_id = var.DATABASE_USERNAME
   replication {
     auto {}
   }
 }
 resource "google_secret_manager_secret_version" "DATABASE_USERNAME_VERSION" {
-  secret = google_secret_manager_secret.DATABASE_USERNAME.id
+  secret      = google_secret_manager_secret.DATABASE_USERNAME.id
   secret_data = var.sql_user
 }
 
 resource "google_secret_manager_secret" "DATABASE_PASSWORD" {
-  secret_id = "DATABASE_PASSWORD"
+  secret_id = var.DATABASE_PASSWORD
   replication {
     auto {}
   }
 }
 resource "google_secret_manager_secret_version" "DATABASE_PASSWORD_VERSION" {
-  secret = google_secret_manager_secret.DATABASE_PASSWORD.id
+  secret      = google_secret_manager_secret.DATABASE_PASSWORD.id
   secret_data = random_password.password.result
 }
 
 resource "google_secret_manager_secret" "KEY_MANAGEMENT_SYSTEM_KEY" {
-  secret_id = "KEY_MANAGEMENT_SYSTEM_KEY"
+  secret_id = var.KEY_MANAGEMENT_SYSTEM_KEY
   replication {
     auto {}
   }
 }
 resource "google_secret_manager_secret_version" "KMS_KEY_VERSION" {
-  secret = google_secret_manager_secret.KEY_MANAGEMENT_SYSTEM_KEY.id  
+  secret      = google_secret_manager_secret.KEY_MANAGEMENT_SYSTEM_KEY.id
   secret_data = "projects/test-cloud-csye6225/locations/us-east1/keyRings/${google_kms_key_ring.kms_key_ring.name}/cryptoKeys/${google_kms_crypto_key.vm_kms_crypto_key.name}"
 }
