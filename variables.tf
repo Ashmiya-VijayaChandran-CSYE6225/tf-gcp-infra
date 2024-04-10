@@ -573,3 +573,50 @@ variable "mailgun_api_key" {
   type        = string
 }
 
+variable "sql_admin_project_service_identity_service" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "bucket_crypto_iam_binding_role" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "vm_crypto_iam_binding_role" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "sql_crypto_iam_binding_role" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "vm_crypto_iam_binding_sa" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "DATABASE_USERNAME" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "DATABASE_PASSWORD" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "DATABASE_URL" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+variable "KEY_MANAGEMENT_SYSTEM_KEY" {
+  description = "mailgun_api_key"
+  type        = string
+}
+
+
+
